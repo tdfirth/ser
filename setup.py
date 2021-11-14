@@ -22,9 +22,5 @@ setup(
     ],
     install_requires=requirements,
     python_requires=">=3.9",
-    entry_points={
-        "console_scripts": [
-            "ser = bin.cli:main"
-        ]
-    },
+    entry_points={"console_scripts": ["ser = bin.cli:main"]},
 )
