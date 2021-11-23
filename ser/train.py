@@ -3,7 +3,9 @@ import numpy as np
 import torch
 import torch.nn.functional as F
 
+from ser.constants import RESULTS_DIR
 from ser.models import Parameters, Data, TrainingModel
+from utils import get_file_path
 
 
 def train_one_epoch(images: np.array, labels: np.array, training_model: TrainingModel):
@@ -22,7 +24,9 @@ def get_validation_loss(data: Data, training_model: TrainingModel):
     correct = 0
     with torch.no_grad():
         for images, labels in data.validation_dataloader:
-            images, labels = images.to(training_model.device), labels.to(training_model.device)
+            images, labels = images.to(training_model.device), labels.to(
+                training_model.device
+            )
             training_model.model.eval()
             output = training_model.model(images)
             val_loss += F.nll_loss(output, labels, reduction="sum").item()
@@ -35,7 +39,9 @@ def get_validation_loss(data: Data, training_model: TrainingModel):
 
 def train_model(parameters: Parameters, data: Data, training_model: TrainingModel):
     for batch, (images, labels) in enumerate(data.training_dataloader):
-        images, labels = images.to(training_model.device), labels.to(training_model.device)
+        images, labels = images.to(training_model.device), labels.to(
+            training_model.device
+        )
         for epoch in range(parameters.epochs):
 
             loss = train_one_epoch(images, labels, training_model)
@@ -47,6 +53,10 @@ def train_model(parameters: Parameters, data: Data, training_model: TrainingMode
 
             val_loss, val_acc = get_validation_loss(data, training_model)
 
-            print(f"Val Epoch: {epoch} | Avg Loss: {val_loss:.4f} | Accuracy: {val_acc}")
+            print(
+                f"Val Epoch: {epoch} | Avg Loss: {val_loss:.4f} | Accuracy: {val_acc}"
+            )
 
-
+    torch.save(
+        training_model.model.state_dict(), get_file_path(RESULTS_DIR, parameters.id)
+    )

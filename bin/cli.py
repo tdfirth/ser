@@ -7,6 +7,7 @@ from torch import optim
 from ser.models import Net, Parameters, TrainingModel, Data
 from ser.train import train_model
 from ser.tranforms import get_transforms
+from utils import get_unique_id
 
 main = typer.Typer()
 
@@ -29,7 +30,7 @@ def train(
         0.01, "-lr", "--learning-rate", help="Learning rate to train with"
     ),
 ):
-    parameters = Parameters(name, epochs, batch_size, learning_rate)
+    parameters = Parameters(get_unique_id(), name, epochs, batch_size, learning_rate)
 
     print(f"Running experiment {name}")
 

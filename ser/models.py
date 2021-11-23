@@ -9,19 +9,22 @@ from torch.utils.data import DataLoader
 
 from ser.constants import Transform, PARAMETER_DIR
 from ser.data import get_data
+from utils import get_git_revision_hash, get_file_path
 
 
 @dataclass(frozen=True)
 class Parameters:
+    id: str
     name: str
     epochs: int
     batch_size: int
     learning_rate: float
 
     def __post_init__(self):
-        PARAMETER_DIR.mkdir(exist_ok=True)
-        file_name = (PARAMETER_DIR / self.name).with_suffix(".json")
-        file_name.open("w").write(json.dumps(asdict(self)))
+        as_dict = asdict(self)
+        as_dict["git_hash"] = get_git_revision_hash()
+        file_path = get_file_path(PARAMETER_DIR, self.id)
+        file_path.open("w").write(json.dumps(as_dict))
 
 
 @dataclass()
