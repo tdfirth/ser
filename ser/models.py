@@ -1,4 +1,5 @@
-from dataclasses import dataclass
+import json
+from dataclasses import dataclass, asdict
 from typing import Callable
 
 import torch
@@ -6,7 +7,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 from torch.utils.data import DataLoader
 
-from ser.constants import Transform
+from ser.constants import Transform, PARAMETER_DIR
 from ser.data import get_data
 
 
@@ -17,6 +18,10 @@ class Parameters:
     batch_size: int
     learning_rate: float
 
+    def __post_init__(self):
+        PARAMETER_DIR.mkdir(exist_ok=True)
+        file_name = (PARAMETER_DIR / self.name).with_suffix(".json")
+        file_name.open("w").write(json.dumps(asdict(self)))
 
 
 @dataclass()
