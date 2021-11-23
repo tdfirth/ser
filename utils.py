@@ -14,7 +14,7 @@ def get_unique_id() -> str:
         + "_"
         + get_git_revision_hash()
         + "_"
-        + uuid.uuid4().hex #TODO: possibly overkill?
+        + uuid.uuid4().hex  # TODO: possibly overkill?
     )
 
 
