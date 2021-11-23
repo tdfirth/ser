@@ -1,6 +1,6 @@
 import json
 from dataclasses import dataclass, asdict
-from typing import Callable
+from typing import Callable, Any, Dict
 
 import torch
 import torch.nn as nn
@@ -43,6 +43,14 @@ class TrainingModel:
         return self._optimizer(
             self.model.parameters(), lr=self.parameters.learning_rate
         )
+
+
+@dataclass(frozen=True)
+class BestModel:
+    accuracy: float
+    loss: float
+    epoch: int
+    model_data: Dict[str, Any]
 
 
 @dataclass(frozen=True)
