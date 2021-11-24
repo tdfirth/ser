@@ -5,6 +5,7 @@ import numpy as np
 import torch
 import torch.nn.functional as F
 
+from ser.constants import MODEL_NAME
 from ser.models import Parameters, Data, TrainingModel, BestModel, get_file_path
 
 
@@ -59,13 +60,13 @@ def train_model(parameters: Parameters, data: Data, training_model: TrainingMode
         accuracies.append((val_acc, epoch))
 
         if not curr_best_model or val_acc > curr_best_model.accuracy:
-            curr_best_model = BestModel(
-                val_acc, val_loss, epoch, training_model.model.state_dict()
-            )
+            curr_best_model = BestModel(val_acc, val_loss, epoch, training_model.model)
 
         print(f"Val Epoch: {epoch} | Avg Loss: {val_loss:.4f} | Accuracy: {val_acc}")
 
-    torch.save(curr_best_model.model_data, get_file_path(parameters, "results", suffix=".pt"))
+    torch.save(
+        curr_best_model.model_data, get_file_path(parameters, MODEL_NAME, suffix=".pt")
+    )
 
     print(
         f"Best accuracy at epoch: {curr_best_model.epoch} | "

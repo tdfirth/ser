@@ -1,3 +1,4 @@
+import json
 from pathlib import Path
 
 import torch
@@ -5,9 +6,9 @@ import typer
 from torch import optim
 
 from ser.data import get_data
+from ser.infer import infer_label
 from ser.models import Net, Parameters, TrainingModel, Data
 from ser.train import train_model
-
 from ser.transforms import normalize, transforms
 from utils import get_unique_id
 
@@ -50,39 +51,25 @@ def train(
 
 
 @main.command()
-def infer():
-    run_path = Path("./path/to/one/of/your/training/runs")
-    label = 6
+def infer(
+    file_path: str = typer.Option(
+        ..., "-fp", "--file-path", help="Name of file path to load"
+    ),
+    predict_number: int = typer.Option(
+        6, "-n", "--predict-number", help="Number to infer"
+    ),
+):
+    run_path = Path(file_path)
 
-    # TODO load the parameters from the run_path so we can print them out!
+    with open(run_path / "parameters.json") as f:
+        parameters = Parameters(**json.load(f))
+
+    print(parameters)
 
     # select image to run inference for
-    dataloader = get_data(transform=transforms(normalize()), batch_size=1, train=False)
-    images, labels = next(iter(dataloader))
-    while labels[0].item() != label:
-        images, labels = next(iter(dataloader))
+    dataloader = get_data(transform=transforms(normalize), batch_size=1, train=False)
+    infer_label(dataloader, run_path, predict_number)
 
-    # load the model
-    model = torch.load(run_path / "model.pt")
-
-    # run inference
-    model.eval()
-    output = model(images)
-    pred = output.argmax(dim=1, keepdim=True)[0].item()
-    certainty = max(list(torch.exp(output)[0]))
-    pixels = images[0][0]
-    print(generate_ascii_art(pixels))
-    print(f"This is a {pred}")
-
-
-def generate_ascii_art(pixels):
-    ascii_art = []
-    for row in pixels:
-        line = []
-        for pixel in row:
-            line.append(pixel_to_char(pixel))
-        ascii_art.append("".join(line))
-    return "\n".join(ascii_art)
 
 
 def pixel_to_char(pixel):
