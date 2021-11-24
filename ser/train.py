@@ -5,9 +5,7 @@ import numpy as np
 import torch
 import torch.nn.functional as F
 
-from ser.constants import RESULTS_DIR
-from ser.models import Parameters, Data, TrainingModel, BestModel
-from utils import get_file_path
+from ser.models import Parameters, Data, TrainingModel, BestModel, get_file_path
 
 
 def train_one_batch(images: np.array, labels: np.array, training_model: TrainingModel):
@@ -67,7 +65,7 @@ def train_model(parameters: Parameters, data: Data, training_model: TrainingMode
 
         print(f"Val Epoch: {epoch} | Avg Loss: {val_loss:.4f} | Accuracy: {val_acc}")
 
-    torch.save(curr_best_model.model_data, get_file_path(RESULTS_DIR, parameters.id))
+    torch.save(curr_best_model.model_data, get_file_path(parameters, "results"))
 
     print(
         f"Best accuracy at epoch: {curr_best_model.epoch} | "
