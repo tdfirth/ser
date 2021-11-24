@@ -101,5 +101,5 @@ def get_file_path(
     parameters: Parameters, dir_name="parameters", suffix=".json"
 ):
     path = OUTPUTS_DIR / parameters.name / dir_name
-    path.mkdir(exist_ok=True)
+    path.mkdir(exist_ok=True, parents=True)
     return (path / parameters.id).with_suffix(suffix)

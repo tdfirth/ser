@@ -4,9 +4,11 @@ import torch
 import typer
 from torch import optim
 
+from ser.data import get_data
 from ser.models import Net, Parameters, TrainingModel, Data
 from ser.train import train_model
-from ser.tranforms import get_transforms
+
+from ser.transforms import normalize, transforms
 from utils import get_unique_id
 
 main = typer.Typer()
@@ -39,13 +41,12 @@ def train(
     )
 
     # torch transforms
-    ts = get_transforms()
+    ts = transforms(normalize)
 
     # dataloaders
     data = Data.from_inputs(ts, parameters)
 
     train_model(parameters, data, training_model)
-
 
 
 @main.command()
@@ -56,7 +57,7 @@ def infer():
     # TODO load the parameters from the run_path so we can print them out!
 
     # select image to run inference for
-    dataloader = test_dataloader(1, transforms(normalize))
+    dataloader = get_data(transform=transforms(normalize()), batch_size=1, train=False)
     images, labels = next(iter(dataloader))
     while labels[0].item() != label:
         images, labels = next(iter(dataloader))

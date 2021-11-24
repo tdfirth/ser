@@ -65,7 +65,7 @@ def train_model(parameters: Parameters, data: Data, training_model: TrainingMode
 
         print(f"Val Epoch: {epoch} | Avg Loss: {val_loss:.4f} | Accuracy: {val_acc}")
 
-    torch.save(curr_best_model.model_data, get_file_path(parameters, "results"))
+    torch.save(curr_best_model.model_data, get_file_path(parameters, "results", suffix=".pt"))
 
     print(
         f"Best accuracy at epoch: {curr_best_model.epoch} | "
