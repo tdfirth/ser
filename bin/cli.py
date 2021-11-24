@@ -10,6 +10,7 @@ from ser.constants import RESULTS_DIR
 from ser.data import train_dataloader, val_dataloader, test_dataloader
 from ser.params import Params, save_params
 from ser.transforms import transforms, normalize
+from ser.infer import inference
 
 main = typer.Typer()
 
@@ -60,8 +61,12 @@ def train(
 
 @main.command()
 def infer():
-    run_path = Path("./path/to/one/of/your/training/runs")
+    #run_path = Path("./path/to/one/of/your/training/runs")
+    run_path = Path("./results/test1/2021-11-24T11-09")
     label = 6
+    
+    # Calling the inference module 
+    inference() # print function
 
     # TODO load the parameters from the run_path so we can print them out!
 
