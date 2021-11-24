@@ -18,23 +18,23 @@ def train_one_batch(images: np.array, labels: np.array, training_model: Training
     return loss
 
 
+@torch.no_grad()
 def get_validation_loss(data: Data, training_model: TrainingModel):
     # validate
     val_loss = 0
     correct = 0
-    with torch.no_grad():
-        for images, labels in data.validation_dataloader:
-            images, labels = images.to(training_model.device), labels.to(
-                training_model.device
-            )
-            training_model.model.eval()
-            output = training_model.model(images)
-            val_loss += F.nll_loss(output, labels, reduction="sum").item()
-            pred = output.argmax(dim=1, keepdim=True)
-            correct += pred.eq(labels.view_as(pred)).sum().item()
-        val_loss /= len(data.validation_dataloader.dataset)
-        val_acc = correct / len(data.validation_dataloader.dataset)
-        return val_loss, val_acc
+    for images, labels in data.validation_dataloader:
+        images, labels = images.to(training_model.device), labels.to(
+            training_model.device
+        )
+        training_model.model.eval()
+        output = training_model.model(images)
+        val_loss += F.nll_loss(output, labels, reduction="sum").item()
+        pred = output.argmax(dim=1, keepdim=True)
+        correct += pred.eq(labels.view_as(pred)).sum().item()
+    val_loss /= len(data.validation_dataloader.dataset)
+    val_acc = correct / len(data.validation_dataloader.dataset)
+    return val_loss, val_acc
 
 
 def train_model(parameters: Parameters, data: Data, training_model: TrainingModel):
