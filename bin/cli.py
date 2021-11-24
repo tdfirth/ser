@@ -1,13 +1,17 @@
 import json
+import os
 from pathlib import Path
+from typing import Optional
 
 import torch
 import typer
 from torch import optim
 
+from ser.constants import OUTPUTS_DIR
 from ser.data import get_data
 from ser.infer import infer_label
 from ser.models import Net, Parameters, TrainingModel, Data
+from ser.outputs import get_params_in_dir
 from ser.train import train_model
 from ser.transforms import normalize, transforms
 from utils import get_unique_id
@@ -59,25 +63,33 @@ def infer(
         6, "-n", "--predict-number", help="Number to infer"
     ),
 ):
-    run_path = Path(file_path)
+    file_path = Path(file_path)
 
-    with open(run_path / "parameters.json") as f:
+    with open(file_path / "parameters.json") as f:
         parameters = Parameters(**json.load(f))
 
     print(parameters)
 
     # select image to run inference for
     dataloader = get_data(transform=transforms(normalize), batch_size=1, train=False)
-    infer_label(dataloader, run_path, predict_number)
+    infer_label(dataloader, file_path, predict_number)
 
 
+@main.command()
+def get_experiments(
+    root_dir: str = typer.Option(
+        OUTPUTS_DIR, "-rd", "--root-dir", help="Name of root directory to load from"
+    ),
+    experiment_filter: Optional[str] = typer.Option(
+        None, "-ef", "--experiment", help="Name of particular experiment to filter on"
+    ),
+):
 
-def pixel_to_char(pixel):
-    if pixel > 0.99:
-        return "O"
-    elif pixel > 0.9:
-        return "o"
-    elif pixel > 0:
-        return "."
+    root_dir = Path(root_dir)
+
+    if not experiment_filter:
+        for experiment_name in os.listdir(root_dir):
+            get_params_in_dir(root_dir / experiment_name)
+
     else:
-        return " "
+        get_params_in_dir(root_dir / experiment_filter)

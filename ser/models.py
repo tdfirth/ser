@@ -27,10 +27,11 @@ class Parameters:
 
     def __repr__(self):
         return (
-            f"Model name: {self.name}\n"
-            f"Epochs: {self.epochs}\n"
-            f"Batch size: {self.batch_size}\n"
-            f"Learning rate: {self.learning_rate}"
+            f"| ID: {self.id}  |"
+            f"Model name: {self.name}  |"
+            f"Epochs: {self.epochs}  |"
+            f"Batch size: {self.batch_size}  |"
+            f"Learning rate: {self.learning_rate} |"
         )
 
 
