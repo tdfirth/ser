@@ -25,3 +25,11 @@ def test_dataloader(batch_size, transforms):
         root=DATA_DIR, download=True, train=False, transform=transforms
     )
     return DataLoader(data, batch_size=batch_size, shuffle=True, num_workers=1)
+
+
+def get_one_test_instance(label, transform):
+    dataloader = test_dataloader(1, transform)
+    images, labels = next(iter(dataloader))
+    while labels[0].item() != label:
+        images, labels = next(iter(dataloader))
+    return images

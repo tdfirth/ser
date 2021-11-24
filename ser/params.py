@@ -17,3 +17,13 @@ PARAMS_FILE = "params.json"
 def save_params(run_path, params):
     with open(run_path / PARAMS_FILE, "w") as f:
         json.dump(asdict(params), f, indent=2)
+
+
+def load_params(run_path, verbose=True):
+    with open(run_path / PARAMS_FILE, "r") as f:
+        params = json.load(f)
+    if verbose:
+        print('Loaded model params:')
+        print(json.dumps(params, indent=4,))
+
+    return params

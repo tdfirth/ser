@@ -49,4 +49,15 @@ def _val_batch(model, dataloader, device, epoch):
         correct += pred.eq(labels.view_as(pred)).sum().item()
     val_loss /= len(dataloader.dataset)
     accuracy = correct / len(dataloader.dataset)
-    print(f"Val Epoch: {epoch} | Avg Loss: {val_loss:.4f} | Accuracy: {accuracy}")
+    print(
+        f"Val Epoch: {epoch} | Avg Loss: {val_loss:.4f} | Accuracy: {accuracy}")
+
+
+@torch.no_grad()
+def instance_predict(model, images):
+    model.eval()
+    output = model(images)
+    pred = output.argmax(dim=1, keepdim=True)[0].item()
+    certainty = max(list(torch.exp(output)[0]))
+    pixels = images[0][0]
+    return pixels, pred, certainty
