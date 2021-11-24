@@ -1,15 +1,15 @@
-from datetime import datetime
 from pathlib import Path
 
-import typer
 import torch
-import git
+import typer
+from torch import optim
 
-from ser.train import train as run_train
-from ser.constants import RESULTS_DIR
-from ser.data import train_dataloader, val_dataloader, test_dataloader
-from ser.params import Params, save_params
-from ser.transforms import transforms, normalize
+from ser.data import get_data
+from ser.models import Net, Parameters, TrainingModel, Data
+from ser.train import train_model
+
+from ser.transforms import normalize, transforms
+from utils import get_unique_id
 
 main = typer.Typer()
 
@@ -20,42 +20,33 @@ def train(
         ..., "-n", "--name", help="Name of experiment to save under."
     ),
     epochs: int = typer.Option(
-        5, "-e", "--epochs", help="Number of epochs to run for."
+        2, "-e", "--epochs", help="Number of epochs to train over"
     ),
     batch_size: int = typer.Option(
-        1000, "-b", "--batch-size", help="Batch size for dataloader."
+        1000, "-b", "--batch-size", help="Batch size to train with"
     ),
     learning_rate: float = typer.Option(
-        0.01, "-l", "--learning-rate", help="Learning rate for the model."
+        0.01, "-lr", "--learning-rate", help="Learning rate to train with"
     ),
 ):
-    """Run the training algorithm."""
-    repo = git.Repo(search_parent_directories=True)
-    sha = repo.head.object.hexsha
+    parameters = Parameters(get_unique_id(), name, epochs, batch_size, learning_rate)
 
-    # wraps the passed in parameters
-    params = Params(name, epochs, batch_size, learning_rate, sha)
+    print(f"Running experiment {name}")
 
-    # setup device to run on
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-
-    # setup run
-    fmt = "%Y-%m-%dT%H-%M"
-    timestamp = datetime.strftime(datetime.utcnow(), fmt)
-    run_path = RESULTS_DIR / name / timestamp
-    run_path.mkdir(parents=True, exist_ok=True)
-
-    # Save parameters for the run
-    save_params(run_path, params)
-
-    # Train!
-    run_train(
-        run_path,
-        params,
-        train_dataloader(params.batch_size, transforms(normalize)),
-        val_dataloader(params.batch_size, transforms(normalize)),
-        device,
+    training_model = TrainingModel(
+        device=torch.device("cuda" if torch.cuda.is_available() else "cpu"),
+        _model=Net(),
+        _optimizer=optim.Adam,
+        parameters=parameters,
     )
+
+    # torch transforms
+    ts = transforms(normalize)
+
+    # dataloaders
+    data = Data.from_inputs(ts, parameters)
+
+    train_model(parameters, data, training_model)
 
 
 @main.command()
@@ -66,7 +57,7 @@ def infer():
     # TODO load the parameters from the run_path so we can print them out!
 
     # select image to run inference for
-    dataloader = test_dataloader(1, transforms(normalize))
+    dataloader = get_data(transform=transforms(normalize()), batch_size=1, train=False)
     images, labels = next(iter(dataloader))
     while labels[0].item() != label:
         images, labels = next(iter(dataloader))
