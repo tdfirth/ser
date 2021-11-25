@@ -1,7 +1,8 @@
 import json
 import subprocess
+from dataclasses import asdict
 from datetime import datetime
-import uuid
+from typing import Any
 
 
 def get_git_revision_hash() -> str:
@@ -9,13 +10,12 @@ def get_git_revision_hash() -> str:
 
 
 def get_unique_id() -> str:
-    return (
-        datetime.now().strftime("%Y-%m-%d_%H:%M")
-        + "_"
-        + get_git_revision_hash()
-        + "_"
-        + uuid.uuid4().hex  # TODO: possibly overkill?
-    )
+    return f"{datetime.now().strftime('%Y-%m-%d_%H:%M')}_{get_git_revision_hash()}"
+
+
+def write_dataclass_dict(class_object: Any, file_path: str):
+    with open(file_path, "w") as f:
+        f.write(json.dumps(asdict(class_object)))
 
 
 def generate_ascii_art(pixels):

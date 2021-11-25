@@ -21,11 +21,7 @@ class Parameters:
     learning_rate: float
     git_hash: str = get_git_revision_hash()
 
-    def __post_init__(self):
-        file_path = get_file_path(self)
-        file_path.open("w").write(json.dumps(asdict(self)))
-
-    def __repr__(self):
+    def __str__(self):
         return (
             f"| ID: {self.id}  |"
             f"Model name: {self.name}  |"
@@ -66,8 +62,8 @@ class Data:
     training_dataloader: DataLoader
     validation_dataloader: DataLoader
 
-    @classmethod
-    def from_inputs(cls, transform: Transform, parameters: Parameters):
+    @staticmethod
+    def from_inputs(transform: Transform, parameters: Parameters):
         train = get_data(transform=transform, batch_size=parameters.batch_size)
         validate = get_data(
             transform=transform,
@@ -76,7 +72,7 @@ class Data:
             batch_size=parameters.batch_size,
         )
 
-        return cls(train, validate)
+        return Data(train, validate)
 
 
 class Net(nn.Module):

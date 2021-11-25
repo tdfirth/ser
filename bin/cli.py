@@ -10,11 +10,11 @@ from torch import optim
 from ser.constants import OUTPUTS_DIR
 from ser.data import get_data
 from ser.infer import infer_label
-from ser.models import Net, Parameters, TrainingModel, Data
+from ser.models import Net, Parameters, TrainingModel, Data, get_file_path
 from ser.outputs import get_params_in_dir
 from ser.train import train_model
 from ser.transforms import normalize, transforms
-from utils import get_unique_id
+from utils import get_unique_id, write_dataclass_dict
 
 main = typer.Typer()
 
@@ -35,6 +35,7 @@ def train(
     ),
 ):
     parameters = Parameters(get_unique_id(), name, epochs, batch_size, learning_rate)
+    write_dataclass_dict(class_object=parameters, file_path=get_file_path(parameters))
 
     print(f"Running experiment {name}")
 
