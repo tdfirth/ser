@@ -2,6 +2,7 @@ import json
 import subprocess
 from dataclasses import asdict
 from datetime import datetime
+from pathlib import Path
 from typing import Any
 
 
@@ -16,6 +17,11 @@ def get_unique_id() -> str:
 def write_dataclass_dict(class_object: Any, file_path: str):
     with open(file_path, "w") as f:
         f.write(json.dumps(asdict(class_object)))
+
+
+def load_object_from_json(class_object: Any, file_path: Path):
+    with open(file_path) as f:
+        return class_object(**json.load(f))
 
 
 def generate_ascii_art(pixels):

@@ -1,20 +1,20 @@
 import json
 import os
-from pathlib import Path
-from typing import Optional
-
 import torch
 import typer
+from pathlib import Path
 from torch import optim
+from typing import Optional, List
 
+from bin.validators import transform_callback
 from ser.constants import OUTPUTS_DIR
 from ser.data import get_data
-from ser.infer import infer_label
+from ser.infer import infer_label, select_test_image
 from ser.models import Net, Parameters, TrainingModel, Data, get_file_path
 from ser.outputs import get_params_in_dir
 from ser.train import train_model
 from ser.transforms import normalize, transforms
-from utils import get_unique_id, write_dataclass_dict
+from utils import get_unique_id, write_dataclass_dict, load_object_from_json
 
 main = typer.Typer()
 
@@ -57,23 +57,34 @@ def train(
 
 @main.command()
 def infer(
-    file_path: str = typer.Option(
-        ..., "-fp", "--file-path", help="Name of file path to load"
+    file_path: Path = typer.Option(
+        ..., "-p", "--path", help="Path to run from which you want to infer."
     ),
     predict_number: int = typer.Option(
-        6, "-n", "--predict-number", help="Number to infer"
+        6, "-l", "--label", help="Label of image to show to the model"
+    ),
+    transform_list: List[str] = typer.Option(
+        [],
+        "-tl",
+        "--transform-list",
+        help="List of transforms to input",
+        callback=transform_callback,
     ),
 ):
-    file_path = Path(file_path)
 
-    with open(file_path / "parameters.json") as f:
-        parameters = Parameters(**json.load(f))
+    transform_list = [normalize, *transform_list]
 
+    parameters = load_object_from_json(Parameters, file_path / "parameters.json")
+
+    model = torch.load(file_path / "model.pt")
+
+    print(f"\nRunning inference")
     print(parameters)
+    print(f"The image you have asked to classify is a {predict_number}.")
+    print(f"Here's what was fed to the model after transformations were applied:")
 
-    # select image to run inference for
-    dataloader = get_data(transform=transforms(normalize), batch_size=1, train=False)
-    infer_label(dataloader, file_path, predict_number)
+    image = select_test_image(predict_number, transform_list)
+    infer_label(model, image)
 
 
 @main.command()
