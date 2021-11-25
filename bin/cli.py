@@ -1,15 +1,20 @@
+import json
+import os
 from pathlib import Path
+from typing import Optional
 
 import torch
 import typer
 from torch import optim
 
+from ser.constants import OUTPUTS_DIR
 from ser.data import get_data
-from ser.models import Net, Parameters, TrainingModel, Data
+from ser.infer import infer_label
+from ser.models import Net, Parameters, TrainingModel, Data, get_file_path
+from ser.outputs import get_params_in_dir
 from ser.train import train_model
-
 from ser.transforms import normalize, transforms
-from utils import get_unique_id
+from utils import get_unique_id, write_dataclass_dict
 
 main = typer.Typer()
 
@@ -30,6 +35,7 @@ def train(
     ),
 ):
     parameters = Parameters(get_unique_id(), name, epochs, batch_size, learning_rate)
+    write_dataclass_dict(class_object=parameters, file_path=get_file_path(parameters))
 
     print(f"Running experiment {name}")
 
@@ -50,47 +56,41 @@ def train(
 
 
 @main.command()
-def infer():
-    run_path = Path("./path/to/one/of/your/training/runs")
-    label = 6
+def infer(
+    file_path: str = typer.Option(
+        ..., "-fp", "--file-path", help="Name of file path to load"
+    ),
+    predict_number: int = typer.Option(
+        6, "-n", "--predict-number", help="Number to infer"
+    ),
+):
+    file_path = Path(file_path)
 
-    # TODO load the parameters from the run_path so we can print them out!
+    with open(file_path / "parameters.json") as f:
+        parameters = Parameters(**json.load(f))
+
+    print(parameters)
 
     # select image to run inference for
-    dataloader = get_data(transform=transforms(normalize()), batch_size=1, train=False)
-    images, labels = next(iter(dataloader))
-    while labels[0].item() != label:
-        images, labels = next(iter(dataloader))
-
-    # load the model
-    model = torch.load(run_path / "model.pt")
-
-    # run inference
-    model.eval()
-    output = model(images)
-    pred = output.argmax(dim=1, keepdim=True)[0].item()
-    certainty = max(list(torch.exp(output)[0]))
-    pixels = images[0][0]
-    print(generate_ascii_art(pixels))
-    print(f"This is a {pred}")
+    dataloader = get_data(transform=transforms(normalize), batch_size=1, train=False)
+    infer_label(dataloader, file_path, predict_number)
 
 
-def generate_ascii_art(pixels):
-    ascii_art = []
-    for row in pixels:
-        line = []
-        for pixel in row:
-            line.append(pixel_to_char(pixel))
-        ascii_art.append("".join(line))
-    return "\n".join(ascii_art)
+@main.command()
+def get_experiments(
+    root_dir: str = typer.Option(
+        OUTPUTS_DIR, "-rd", "--root-dir", help="Name of root directory to load from"
+    ),
+    experiment_filter: Optional[str] = typer.Option(
+        None, "-ef", "--experiment", help="Name of particular experiment to filter on"
+    ),
+):
 
+    root_dir = Path(root_dir)
 
-def pixel_to_char(pixel):
-    if pixel > 0.99:
-        return "O"
-    elif pixel > 0.9:
-        return "o"
-    elif pixel > 0:
-        return "."
+    if not experiment_filter:
+        for experiment_name in os.listdir(root_dir):
+            get_params_in_dir(root_dir / experiment_name)
+
     else:
-        return " "
+        get_params_in_dir(root_dir / experiment_filter)

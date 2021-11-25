@@ -1,13 +1,13 @@
 import json
 from dataclasses import dataclass, asdict
-from typing import Callable, Any, Dict
+from typing import Callable
 
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from torch.utils.data import DataLoader
 
-from ser.constants import Transform, OUTPUTS_DIR
+from ser.constants import Transform, OUTPUTS_DIR, PARAMETER_NAME
 from ser.data import get_data
 from utils import get_git_revision_hash
 
@@ -19,12 +19,16 @@ class Parameters:
     epochs: int
     batch_size: int
     learning_rate: float
+    git_hash: str = get_git_revision_hash()
 
-    def __post_init__(self):
-        as_dict = asdict(self)
-        as_dict["git_hash"] = get_git_revision_hash()
-        file_path = get_file_path(self)
-        file_path.open("w").write(json.dumps(as_dict))
+    def __str__(self):
+        return (
+            f"| ID: {self.id}  |"
+            f"Model name: {self.name}  |"
+            f"Epochs: {self.epochs}  |"
+            f"Batch size: {self.batch_size}  |"
+            f"Learning rate: {self.learning_rate} |"
+        )
 
 
 @dataclass()
@@ -50,7 +54,7 @@ class BestModel:
     accuracy: float
     loss: float
     epoch: int
-    model_data: Dict[str, Any]
+    model_data: torch.nn.Module
 
 
 @dataclass(frozen=True)
@@ -58,8 +62,8 @@ class Data:
     training_dataloader: DataLoader
     validation_dataloader: DataLoader
 
-    @classmethod
-    def from_inputs(cls, transform: Transform, parameters: Parameters):
+    @staticmethod
+    def from_inputs(transform: Transform, parameters: Parameters):
         train = get_data(transform=transform, batch_size=parameters.batch_size)
         validate = get_data(
             transform=transform,
@@ -68,7 +72,7 @@ class Data:
             batch_size=parameters.batch_size,
         )
 
-        return cls(train, validate)
+        return Data(train, validate)
 
 
 class Net(nn.Module):
@@ -97,9 +101,7 @@ class Net(nn.Module):
         return output
 
 
-def get_file_path(
-    parameters: Parameters, dir_name="parameters", suffix=".json"
-):
-    path = OUTPUTS_DIR / parameters.name / dir_name
+def get_file_path(parameters: Parameters, file_name=PARAMETER_NAME, suffix=".json"):
+    path = OUTPUTS_DIR / parameters.name / parameters.id
     path.mkdir(exist_ok=True, parents=True)
-    return (path / parameters.id).with_suffix(suffix)
+    return (path / file_name).with_suffix(suffix)
