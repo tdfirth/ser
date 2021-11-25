@@ -67,19 +67,24 @@ def infer(
     label: int = typer.Option(
         6, "-l", "--label", help="Label of image to show to the model"
     ),
+    flip_transform: bool = typer.Option(
+        True, "-f", "--flip", help="Modify the image using the flip transform."
+    ),
 ):
     """Run the inference code"""
     params = load_params(run_path)
     model = torch.load(run_path / "model.pt")
-    image = _select_test_image(label)
+    image = _select_test_image(label, flip_transform)
     run_infer(params, model, image, label)
 
 
-def _select_test_image(label):
+def _select_test_image(label, flip_transform):
     # TODO we should be able to switch between these abstractions without
     #   having to change any code.
     #   make it happen!
-    ts = [normalize, flip]
+    ts = [normalize]
+    if flip_transform==True:
+        ts.append(flip)
     dataloader = test_dataloader(1, transforms(*ts))
     images, labels = next(iter(dataloader))
     while labels[0].item() != label:
