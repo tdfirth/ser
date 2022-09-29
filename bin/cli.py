@@ -1,4 +1,5 @@
 import typer
+from infer import print_text
 
 main = typer.Typer()
 
@@ -10,4 +11,4 @@ def train():
 
 @main.command()
 def infer():
-    pass
+    print_text()
