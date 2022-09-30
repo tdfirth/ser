@@ -2,7 +2,9 @@ import torch
 import torch.nn.functional as F
 
 def modeltrain(epochs, device, model, optimizer, training_dataloader, validation_dataloader):
+    results = []
     for epoch in range(epochs):
+        max_acc = 0
         for i, (images, labels) in enumerate(training_dataloader):
             images, labels = images.to(device), labels.to(device)
             model.train()
@@ -32,4 +34,10 @@ def modeltrain(epochs, device, model, optimizer, training_dataloader, validation
                 print(
                     f"Val Epoch: {epoch} | Avg Loss: {val_loss:.4f} | Accuracy: {val_acc}"
                 )
-    return model
+
+            if val_acc > max_acc:
+                max_acc = val_acc
+                
+        results.append({"Val Epoch": epoch, "Maximum accuracy": max_acc})
+
+    return model, results
