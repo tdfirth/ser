@@ -14,6 +14,7 @@ from ser.train import trainer
 import json
 
 from datetime import date
+import time
 
 main = typer.Typer()
 
@@ -40,8 +41,10 @@ def train(
     )
 ):
 
-    with open(f'{name}_dmy{date.today()}_hyperperams.json', "w") as f:
-        json.dump({"name": name, "epochs": epochs, "batch_size": batch_size, "learning_rate": learning_rate}, f)
+    timestr = time.strftime("%Y%m%d-%H%M%S")
+
+    with open(f'{name}_dmy{timestr}_hyperperams.json', "a") as f:
+        json.dump({"name": name, "datetime": timestr, "epochs": epochs, "batch_size": batch_size, "learning_rate": learning_rate}, f)
 
     print(f"Running experiment {name}")
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")

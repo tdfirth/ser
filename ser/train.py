@@ -1,6 +1,6 @@
 import torch
 import torch.nn.functional as F
-from datetime import date
+import time
 
 def trainer(epochs,training_dataloader, validation_dataloader,device,model,optimizer,name):
     for epoch in range(epochs):
@@ -36,4 +36,6 @@ def trainer(epochs,training_dataloader, validation_dataloader,device,model,optim
             )
 
     model_scripted = torch.jit.script(model) # Export to TorchScript
-    model_scripted.save(f"{name}_dmy{date.today()}.pt")
+    # date and time
+    timestr = time.strftime("%Y%m%d-%H%M%S")
+    model_scripted.save(f"{name}_dmy{timestr}_t.pt")
