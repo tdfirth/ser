@@ -17,7 +17,7 @@ from ser.model import modelsetup
 from ser.transforms import transform
 from ser.data import load_train_data, load_val_data
 from ser.train import training, validation
-from ser.save import savemodel
+from ser.save import savemodel, saveparams
 
 @main.command()
 def train(
@@ -57,6 +57,7 @@ def train(
         training(epoch, training_dataloader, model, device, optimizer)
         validation(epoch, validation_dataloader, model, device)
 
+    saveparams(name,epochs,batch_size,learning_rate)
     savemodel(model,name)
 @main.command()
 def infer():
