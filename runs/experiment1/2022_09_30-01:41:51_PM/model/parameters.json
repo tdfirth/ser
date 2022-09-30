@@ -1,0 +1,6 @@
+{
+    "batch_size": 1000,
+    "epochs": 1,
+    "learning_rate": 0.01,
+    "name": "experiment1"
+}

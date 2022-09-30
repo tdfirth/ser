@@ -1,25 +1,31 @@
-from pathlib import Path
-import os
 
+from pathlib import Path
+from datetime import datetime
+from dataclasses import dataclass
+
+from ser.info import get_commit
 from ser.train import train
 
 import typer
 
 main = typer.Typer()
 
+date = datetime.now().strftime("%Y_%m_%d-%I:%M:%S_%p")
+
 PROJECT_ROOT = Path(__file__).parent.parent
+print('Root dir: ', PROJECT_ROOT)
 DATA_DIR = PROJECT_ROOT / "data"
 
+@dataclass
+class Parameters():
+     name: str
+     epochs: int
+     batch_size: int
+     learning_rate: float
+     commit: str
 
-#or
-#we could have structure
-#def set params
-#def run or train
-def save_setup(params):
-    print(params)
-    #save shit to a .txt file so can reload the model
-    return
 
+### TRAINING ENTRYPOINT ###
 @main.command() #to run: ser model-setup --name ect
 def model_setup(name: str = typer.Option(
         ..., "-n", "--name", help="Name of experiment to save under."),
@@ -35,19 +41,27 @@ def model_setup(name: str = typer.Option(
         DATA_DIR = DATA_DIR
         ):
 
-    params = {"name":name, "epochs": epochs, "batch_size": batch_size, "learning_rate": learning_rate}
     print("\nData directory: ", DATA_DIR, "\n")
+    
+    SAVE_DIR = PROJECT_ROOT / 'runs' / name / date / 'model'
+    RESULTS_DIR = PROJECT_ROOT / 'runs' / name / date / 'results'
+    SAVE_DIR.mkdir(parents=True, exist_ok=True)
+    RESULTS_DIR.mkdir(parents=True, exist_ok=True)
 
-    SAVE_DIR = f'results/{name}'
-    Path(SAVE_DIR).mkdir(parents=True, exist_ok=True)
-   
-    train(params, DATA_DIR, SAVE_DIR)
-    save_setup(params)
+    commit = get_commit(PROJECT_ROOT)
 
+    #params = {"name":name, "epochs": epochs, "batch_size": batch_size, "learning_rate": learning_rate}
+    params = Parameters(name, epochs, batch_size, learning_rate, commit)
+
+    #train model
+    train(params, DATA_DIR, SAVE_DIR, RESULTS_DIR, commit)
+    
     return params
 
+### INFERENCE ENTRYPOINT ###
 @main.command()
 def inference():
     infer()
     pass
     
+# %%
