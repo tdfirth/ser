@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-
+# Create a model
 
 def modeldevice(device):
     Net().to(device)

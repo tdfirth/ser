@@ -8,6 +8,7 @@ from torchvision import datasets, transforms
 
 import typer
 from ser.model import modeldevice
+from ser.transforms import torchtransforms
 
 main = typer.Typer()
 
@@ -42,9 +43,7 @@ def train(
     optimizer = optim.Adam(model.parameters(), lr=learning_rate)
 
     # torch transforms
-    ts = transforms.Compose(
-        [transforms.ToTensor(), transforms.Normalize((0.5,), (0.5,))]
-    )
+    ts = torchtransforms()
 
     # dataloaders
     training_dataloader = DataLoader(
