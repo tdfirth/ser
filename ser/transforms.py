@@ -4,7 +4,7 @@ from torch import optim
 import torch.nn as nn
 import torch.nn.functional as F
 from torch.utils.data import DataLoader
-from torchvision import datasets, transforms
+from torchvision import  transforms
 
 import typer
 
@@ -13,5 +13,8 @@ main = typer.Typer()
 PROJECT_ROOT = Path(__file__).parent.parent
 DATA_DIR = PROJECT_ROOT / "data"
 
-def transforms():
-    
+def transform():
+    ts = transforms.Compose(
+        [transforms.ToTensor(), transforms.Normalize((0.5,), (0.5,))]
+    )
+    return(ts)

@@ -14,6 +14,7 @@ PROJECT_ROOT = Path(__file__).parent.parent
 DATA_DIR = PROJECT_ROOT / "data"
 
 from ser.model import modelsetup
+from ser.transforms import transform
 
 @main.command()
 def train(
@@ -35,9 +36,7 @@ def train(
     device, model, optimizer = modelsetup(learning_rate)
 
     # torch transforms
-    ts = transforms.Compose(
-        [transforms.ToTensor(), transforms.Normalize((0.5,), (0.5,))]
-    )
+    ts = transform()
 
     # dataloaders
     training_dataloader = DataLoader(
