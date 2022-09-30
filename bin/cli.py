@@ -15,6 +15,7 @@ DATA_DIR = PROJECT_ROOT / "data"
 
 from ser.model import modelsetup
 from ser.transforms import transform
+from ser.data import load_train_data, load_val_data
 
 @main.command()
 def train(
@@ -39,19 +40,9 @@ def train(
     ts = transform()
 
     # dataloaders
-    training_dataloader = DataLoader(
-        datasets.MNIST(root="../data", download=True, train=True, transform=ts),
-        batch_size=batch_size,
-        shuffle=True,
-        num_workers=1,
-    )
+    training_dataloader = load_train_data(batch_size=batch_size, ts=ts)
 
-    validation_dataloader = DataLoader(
-        datasets.MNIST(root=DATA_DIR, download=True, train=False, transform=ts),
-        batch_size=batch_size,
-        shuffle=False,
-        num_workers=1,
-    )
+    validation_dataloader = load_val_data(batch_size=batch_size, ts=ts)
 
     # train
     for epoch in range(epochs):
