@@ -29,6 +29,7 @@ def train(
 
     # save the parameters!
 
+
     # pull in model and optimizer
     model, optimizer = model_setup(device, learning_rate)
 
@@ -39,9 +40,8 @@ def train(
     training_dataloader, validation_dataloader = load_data(ts, batch_size)
 
     # train
-    model_train(epochs, training_dataloader, 
-                validation_dataloader, device, 
-                model, optimizer)
+    model_train(epochs, training_dataloader, validation_dataloader, \
+                device, model, optimizer)
 
 @main.command()
 def infer():
