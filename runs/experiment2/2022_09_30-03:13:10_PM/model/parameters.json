@@ -1,0 +1,7 @@
+{
+    "batch_size": 1000,
+    "commit": "55fd844d9e1007ae7798bad155a1ea174ba9fbd4",
+    "epochs": 1,
+    "learning_rate": 0.01,
+    "name": "experiment2"
+}

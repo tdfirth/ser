@@ -23,6 +23,9 @@ class Parameters():
      batch_size: int
      learning_rate: float
      commit: str
+     DATA_DIR: str
+     SAVE_DIR: str
+     RESULTS_DIR: str
 
 
 ### TRAINING ENTRYPOINT ###
@@ -50,11 +53,10 @@ def model_setup(name: str = typer.Option(
 
     commit = get_commit(PROJECT_ROOT)
 
-    #params = {"name":name, "epochs": epochs, "batch_size": batch_size, "learning_rate": learning_rate}
-    params = Parameters(name, epochs, batch_size, learning_rate, commit)
+    params = Parameters(name, epochs, batch_size, learning_rate, commit, DATA_DIR, SAVE_DIR, RESULTS_DIR)
 
     #train model
-    train(params, DATA_DIR, SAVE_DIR, RESULTS_DIR, commit)
+    train(params)
     
     return params
 
