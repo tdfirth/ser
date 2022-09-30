@@ -1,10 +1,6 @@
 from pathlib import Path
 from torchvision import  transforms
 
-
-PROJECT_ROOT = Path(__file__).parent.parent
-DATA_DIR = PROJECT_ROOT / "data"
-
 def transform():
     ts = transforms.Compose(
         [transforms.ToTensor(), transforms.Normalize((0.5,), (0.5,))]

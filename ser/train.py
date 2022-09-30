@@ -2,10 +2,6 @@ from pathlib import Path
 import torch
 import torch.nn.functional as F
 
-
-PROJECT_ROOT = Path(__file__).parent.parent
-DATA_DIR = PROJECT_ROOT / "data"
-
 def training(epoch, training_dataloader, model, device, optimizer):
         for i, (images, labels) in enumerate(training_dataloader):
             images, labels = images.to(device), labels.to(device)

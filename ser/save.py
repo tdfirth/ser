@@ -11,6 +11,6 @@ from datetime import datetime
 def savemodel(model,name):
     time = datetime.now()
     SAVE_DIR = EXPERIMENT_DIR / str(name) /  time.strftime("%Y-%m-%d") / time.strftime("%H:%M:%S")
-    if not os.path.isdir(SAVE_DIR):
-        os.mkdir(SAVE_DIR)
+    if not os.path.exists(SAVE_DIR):
+        os.makedirs(SAVE_DIR)
     torch.save(model.state_dict(), SAVE_DIR / "data.pt")
