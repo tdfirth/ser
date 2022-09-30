@@ -1,10 +1,7 @@
-# from pathlib import Path
 import torch
 from torch import optim
-# import torch.nn as nn
-# import torch.nn.functional as F
-# from torch.utils.data import DataLoader
-# from torchvision import datasets, transforms
+import json
+
 from ser.model import Net
 from ser.data import get_data
 from ser.transforms import get_transforms
@@ -40,7 +37,18 @@ def train(
     training_dataloader, validation_dataloader = get_data(batch_size, ts)
 
     # train
-    model = train_model(validation_dataloader, training_dataloader, model, optimizer, epochs, device)
+    model = train_model(validation_dataloader, training_dataloader, model, optimizer, epochs, device, name)
+
+    # save model
+    torch.save(model.state_dict(), './experiments/model_'+name)
+
+    # save hyperparameters
+    hparams = {}
+    for hparam in ["epochs", "batch_size", "learning_rate"]:
+        hparams[hparam] = eval(hparam)
+
+    with open('./experiments/hyperparams_'+name+'.json', 'w') as f:
+        json.dump(hparams, f)
 
 @main.command()
 def infer():

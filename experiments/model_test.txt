@@ -1,0 +1,39 @@
+Experiment file for model: test 
+ Model architecture: Net(
+  (conv1): Conv2d(1, 32, kernel_size=(3, 3), stride=(1, 1))
+  (conv2): Conv2d(32, 64, kernel_size=(3, 3), stride=(1, 1))
+  (dropout1): Dropout(p=0.25, inplace=False)
+  (dropout2): Dropout(p=0.5, inplace=False)
+  (fc1): Linear(in_features=9216, out_features=128, bias=True)
+  (fc2): Linear(in_features=128, out_features=10, bias=True)
+)
+Train Epoch: 0 | Batch: 0/15| Loss: 2.3031
+ Val Epoch: 0 | Avg Loss: 11.9183 | Accuracy: 0.1521
+Train Epoch: 0 | Batch: 1/15| Loss: 13.6072
+ Val Epoch: 0 | Avg Loss: 2.7913 | Accuracy: 0.2801
+Train Epoch: 0 | Batch: 2/15| Loss: 3.5837
+ Val Epoch: 0 | Avg Loss: 2.0838 | Accuracy: 0.407
+Train Epoch: 0 | Batch: 3/15| Loss: 2.1018
+ Val Epoch: 0 | Avg Loss: 1.9306 | Accuracy: 0.5659
+Train Epoch: 0 | Batch: 4/15| Loss: 1.9525
+ Val Epoch: 0 | Avg Loss: 1.4953 | Accuracy: 0.6305
+Train Epoch: 0 | Batch: 5/15| Loss: 1.5928
+ Val Epoch: 0 | Avg Loss: 1.0064 | Accuracy: 0.665
+Train Epoch: 0 | Batch: 6/15| Loss: 1.2467
+ Val Epoch: 0 | Avg Loss: 0.7200 | Accuracy: 0.753
+Train Epoch: 0 | Batch: 7/15| Loss: 1.0598
+ Val Epoch: 0 | Avg Loss: 0.5696 | Accuracy: 0.8203
+Train Epoch: 0 | Batch: 8/15| Loss: 0.9594
+ Val Epoch: 0 | Avg Loss: 0.4917 | Accuracy: 0.8442
+Train Epoch: 0 | Batch: 9/15| Loss: 0.8132
+ Val Epoch: 0 | Avg Loss: 0.4160 | Accuracy: 0.87
+Train Epoch: 0 | Batch: 10/15| Loss: 0.6662
+ Val Epoch: 0 | Avg Loss: 0.3781 | Accuracy: 0.8847
+Train Epoch: 0 | Batch: 11/15| Loss: 0.5883
+ Val Epoch: 0 | Avg Loss: 0.3417 | Accuracy: 0.8996
+Train Epoch: 0 | Batch: 12/15| Loss: 0.5448
+ Val Epoch: 0 | Avg Loss: 0.3194 | Accuracy: 0.9166
+Train Epoch: 0 | Batch: 13/15| Loss: 0.4718
+ Val Epoch: 0 | Avg Loss: 0.2882 | Accuracy: 0.923
+Train Epoch: 0 | Batch: 14/15| Loss: 0.4512
+ Val Epoch: 0 | Avg Loss: 0.2523 | Accuracy: 0.9305
