@@ -9,6 +9,7 @@ from torchvision import datasets, transforms
 import typer
 from ser.model import modeldevice
 from ser.transforms import torchtransforms
+from ser.data import dataloader
 
 main = typer.Typer()
 
@@ -46,19 +47,8 @@ def train(
     ts = torchtransforms()
 
     # dataloaders
-    training_dataloader = DataLoader(
-        datasets.MNIST(root="../data", download=True, train=True, transform=ts),
-        batch_size=batch_size,
-        shuffle=True,
-        num_workers=1,
-    )
-
-    validation_dataloader = DataLoader(
-        datasets.MNIST(root=DATA_DIR, download=True, train=False, transform=ts),
-        batch_size=batch_size,
-        shuffle=False,
-        num_workers=1,
-    )
+    training_dataloader = dataloader("../data", True, ts, batch_size)
+    validation_dataloader = dataloader(DATA_DIR, False, ts, batch_size)
 
     # train
     for epoch in range(epochs):

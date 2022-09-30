@@ -5,7 +5,7 @@ import torch.nn.functional as F
 # Create a model
 
 def modeldevice(device):
-    Net().to(device)
+    return Net().to(device)
 
 class Net(nn.Module):
     def __init__(self):
