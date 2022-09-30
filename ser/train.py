@@ -23,7 +23,7 @@ def train(epoch, device, training_dataloader, model, optimizer):
             f"| Loss: {loss.item():.4f}"
         )
            
-def validate(epoch, device, training_dataloader, model, optimizer):
+def validate(epoch, device, validation_dataloader, model, optimizer):
     # validate
     val_loss = 0
     correct = 0
