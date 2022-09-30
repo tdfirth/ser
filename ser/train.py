@@ -2,12 +2,14 @@ import torch
 import torch.nn.functional as F
 
 
-def model_train(epochs, training_dataloader, validation_dataloader, 
-                device, model, optimizer):
+def model_train(
+    epochs, training_dataloader, validation_dataloader, device, model, optimizer
+):
 
     for epoch in range(epochs):
         train(epoch, device, training_dataloader, model, optimizer)
         validate(epoch, device, validation_dataloader, model, optimizer)
+
 
 def train(epoch, device, training_dataloader, model, optimizer):
     for i, (images, labels) in enumerate(training_dataloader):
@@ -22,7 +24,8 @@ def train(epoch, device, training_dataloader, model, optimizer):
             f"Train Epoch: {epoch} | Batch: {i}/{len(training_dataloader)} "
             f"| Loss: {loss.item():.4f}"
         )
-           
+
+
 def validate(epoch, device, validation_dataloader, model, optimizer):
     # validate
     val_loss = 0
@@ -37,6 +40,4 @@ def validate(epoch, device, validation_dataloader, model, optimizer):
             correct += pred.eq(labels.view_as(pred)).sum().item()
         val_loss /= len(validation_dataloader.dataset)
         val_acc = correct / len(validation_dataloader.dataset)
-        print(
-            f"Val Epoch: {epoch} | Avg Loss: {val_loss:.4f} | Accuracy: {val_acc}"
-        )
+        print(f"Val Epoch: {epoch} | Avg Loss: {val_loss:.4f} | Accuracy: {val_acc}")

@@ -1,5 +1,8 @@
 import torch
 import typer
+import os
+import json
+from datetime import datetime
 
 from ser.model import model_setup
 from ser.transforms import torch_transform
@@ -28,7 +31,22 @@ def train(
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     # save the parameters!
+    today = datetime.now()
+    today_date = today.strftime("%b-%d-%Y")
+    today_time = today.strftime("%H:%M:%S")
+    output_path = f"runs/{today_date}"
+    if not os.path.exists(output_path):
+        os.makedirs(output_path)
 
+    param_dict = {
+        'epochs': epochs,
+        'batch_size': batch_size,
+        'learning_rate': learning_rate
+    }
+
+    param_path = f"{output_path}/parameters-{name}-{today_time}.json"
+    with open(param_path, "w") as outfile:
+        json.dump(param_dict, outfile)    
 
     # pull in model and optimizer
     model, optimizer = model_setup(device, learning_rate)
@@ -40,8 +58,11 @@ def train(
     training_dataloader, validation_dataloader = load_data(ts, batch_size)
 
     # train
-    model_train(epochs, training_dataloader, validation_dataloader, \
+    model_train(epochs, training_dataloader, validation_dataloader,
                 device, model, optimizer)
+
+    # save the trained model
+    torch.save(model.state_dict(), f'{output_path}/{name}-{today_time}')
 
 @main.command()
 def infer():
