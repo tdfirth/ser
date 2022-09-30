@@ -11,6 +11,10 @@ from ser.data import dataloader
 # importing trainer
 from ser.train import trainer
 
+import json
+
+from datetime import date
+
 main = typer.Typer()
 
 PROJECT_ROOT = Path(__file__).parent.parent
@@ -35,6 +39,10 @@ def train(
         ..., "-l", "--learning", help ="Learning rate."
     )
 ):
+
+    with open(f'{name}_dmy{date.today()}_hyperperams.json', "w") as f:
+        json.dump({"name": name, "epochs": epochs, "batch_size": batch_size, "learning_rate": learning_rate}, f)
+
     print(f"Running experiment {name}")
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -47,7 +55,7 @@ def train(
     training_dataloader, validation_dataloader = dataloader(batch_size, DATA_DIR)
 
     # train
-    trainer(epochs,training_dataloader, validation_dataloader,device,model,optimizer)
+    trainer(epochs,training_dataloader, validation_dataloader,device,model,optimizer,name)
 
 @main.command()
 def infer():

@@ -1,7 +1,8 @@
 import torch
 import torch.nn.functional as F
+from datetime import date
 
-def trainer(epochs,training_dataloader, validation_dataloader,device,model,optimizer):
+def trainer(epochs,training_dataloader, validation_dataloader,device,model,optimizer,name):
     for epoch in range(epochs):
         for i, (images, labels) in enumerate(training_dataloader):
             images, labels = images.to(device), labels.to(device)
@@ -32,4 +33,7 @@ def trainer(epochs,training_dataloader, validation_dataloader,device,model,optim
 
             print(
                 f"Val Epoch: {epoch} | Avg Loss: {val_loss:.4f} | Accuracy: {val_acc}"
-            )    
+            )
+
+    model_scripted = torch.jit.script(model) # Export to TorchScript
+    model_scripted.save(f"{name}_dmy{date.today()}.pt")
