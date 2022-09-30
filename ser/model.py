@@ -4,10 +4,6 @@ from torch import optim
 import torch.nn as nn
 import torch.nn.functional as F
 
-import typer
-
-main = typer.Typer()
-
 PROJECT_ROOT = Path(__file__).parent.parent
 DATA_DIR = PROJECT_ROOT / "data"
 
