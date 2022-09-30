@@ -4,17 +4,8 @@ from torch import optim
 import torch.nn as nn
 import torch.nn.functional as F
 
-PROJECT_ROOT = Path(__file__).parent.parent
-DATA_DIR = PROJECT_ROOT / "data"
-
-
 def modelsetup(learning_rate):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    #epochs = 2
-    #batch_size = 1000
-    #learning_rate = 0.01
-
-    # save the parameters!
 
     # load model
     class Net(nn.Module):

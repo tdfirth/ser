@@ -17,6 +17,7 @@ from ser.model import modelsetup
 from ser.transforms import transform
 from ser.data import load_train_data, load_val_data
 from ser.train import training, validation
+from ser.save import savemodel
 
 @main.command()
 def train(
@@ -35,6 +36,12 @@ def train(
 ):
     print(f"Running experiment {name}")
     
+    #epochs = 2
+    #batch_size = 1000
+    #learning_rate = 0.01
+
+    #save the parameters
+
     device, model, optimizer = modelsetup(learning_rate)
 
     # torch transforms
@@ -50,6 +57,7 @@ def train(
         training(epoch, training_dataloader, model, device, optimizer)
         validation(epoch, validation_dataloader, model, device)
 
+    savemodel(model,name)
 @main.command()
 def infer():
     print("This is where the inference code will go")
