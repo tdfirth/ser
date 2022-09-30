@@ -54,6 +54,10 @@ def train(
     repo = git.Repo(search_parent_directories=True)
     commit_hash = repo.git.rev_parse("HEAD")
 
+    # print warning message when there are uncommitted changes
+    if repo.is_dirty():
+        print("The repository has uncommitted changes.")
+
     # save the parameters!
     path_params_model = path_params + name + "_" + datetime_start + ".json"
     #params = {"Name": name, "Epochs number": epochs, 
