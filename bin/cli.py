@@ -32,18 +32,15 @@ def train(
     print(f"Running experiment {name}")
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-    # save hyperparameters
+    # save hyperparameters and git hash
     hparams = hparams_cls(epochs, batch_size, learning_rate)
     hparams_dict = hparams.dict()
-    with open('./experiments/hyperparams_'+name+'.json', 'w') as f:
-        json.dump(hparams_dict, f)
 
-     # save git hash
     repo = git.Repo(search_parent_directories=True)
     sha = repo.head.object.hexsha
-    githash = {'hash':sha}
-    with open('./experiments/hyperparams_'+name+'.json', 'a') as f:
-        json.dump(githash, f)
+    hparams_dict['git hash'] = sha
+    with open('./experiments/hyperparams_'+name+'.json', 'w') as f:
+        json.dump(hparams_dict, f)
 
     # load model
     model = Net().to(device)
