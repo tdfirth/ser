@@ -20,10 +20,21 @@ DATA_DIR = PROJECT_ROOT / "data"
 def params(name: str = typer.Option(
         ..., "-n", "--name", help="Name of experiment to save under."),
         model_setting: str = typer.Option(
-        ..., "-n", "--setting", help="'train' or 'run' the model.")):
+        ..., "-s", "--setting", help="'train' or 'run' the model."),
+        epochs: int = typer.Option(
+            2, "e", "--epochs", help="number of epochs to train the model for."
+        ),
+        batch_size: int = typer.Option(
+            1000, "b", "--batch_size", help="batch size."
+        ),
+        learning_rate: float = typer.Option(
+            0.01, "lr", "--learning_rate", help="learning rate."
+        )
+        ):
+
     if str.lower(model_setting) == 'infer':
-        train()
+        train(name, epochs, batch_size, learning_rate)
     elif str.lower(model_setting) == 'run':
         infer()
     else:
-        print("please ")
+        print("please specify whether you wnat to train or run the model")

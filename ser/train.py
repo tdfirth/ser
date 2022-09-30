@@ -1,15 +1,17 @@
 #model training code defined here
-import typer
+import torch
+from torch import optim
+import torch.nn as nn
+import torch.nn.functional as F
+from ser.model import Net
 
+import typer
 main = typer.Typer()
 
 @main.command()
-def train(name: str):
+def train(name, epochs, batch_size, learning_rate):
     print(f"Running experiment {name}")
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    epochs = 2
-    batch_size = 1000
-    learning_rate = 0.01
 
     # save the parameters!
 
