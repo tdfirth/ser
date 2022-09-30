@@ -16,7 +16,7 @@ DATA_DIR = PROJECT_ROOT / "data"
 from ser.model import modelsetup
 from ser.transforms import transform
 from ser.data import load_train_data, load_val_data
-from ser.train import training
+from ser.train import training, validation
 
 @main.command()
 def train(
@@ -46,7 +46,9 @@ def train(
     validation_dataloader = load_val_data(batch_size=batch_size, ts=ts)
 
     # train
-    training(epochs, training_dataloader, validation_dataloader, model, device, optimizer)
+    for epoch in range(epochs):
+        training(epoch, training_dataloader, model, device, optimizer)
+        validation(epoch, validation_dataloader, model, device)
 
 @main.command()
 def infer():
