@@ -1,22 +1,3 @@
-<<<<<<< HEAD
-import typer
-#import sys
-#sys.path.append('../')
-from ser.infer import inference
-
-main = typer.Typer()
-
-
-@main.command()
-def train():
-    print("This is where the training code will go")
-
-
-@main.command()
-def infer():
-    inference()
-    pass
-=======
 from pathlib import Path
 import torch
 from torch import optim
@@ -135,4 +116,3 @@ class Net(nn.Module):
 @main.command()
 def infer():
     print("This is where the inference code will go")
->>>>>>> 0b68849e684099ea91890903bcd213090290db5e
