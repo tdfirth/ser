@@ -10,22 +10,20 @@ from ser.data import dataloaders
 import typer
 main = typer.Typer()
 
-def train(name, epochs, batch_size, learning_rate, DATA_DIR):
+def train(params, DATA_DIR, SAVE_DIR):
     print(f"Running experiment {name}")
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-
-    # save the parameters!
 
     # load model
     model = Net().to(device)
 
     # setup params
-    optimizer = optim.Adam(model.parameters(), lr=learning_rate)
+    optimizer = optim.Adam(model.parameters(), lr=params['learning_rate'])
 
-    training_dataloader, validation_dataloader = dataloaders(batch_size)
+    training_dataloader, validation_dataloader = dataloaders(params['batch_size'])
     
     # train
-    for epoch in range(epochs):
+    for epoch in range(params['epochs']):
         for i, (images, labels) in enumerate(training_dataloader):
             images, labels = images.to(device), labels.to(device)
             model.train()
@@ -55,3 +53,11 @@ def train(name, epochs, batch_size, learning_rate, DATA_DIR):
             print(
                 f"Val Epoch: {epoch} | Avg Loss: {val_loss:.4f} | Accuracy: {val_acc}"
             )
+
+    #save shit
+    # save the parameters!
+    with open(f'{SAVE_DIR}/parameter.txt', 'w') as file:
+        for param, info in params:
+         file.write(f'{param}: {info}')
+        file.write(f'Validation accuracy: {val_acc}')
+        file.close()

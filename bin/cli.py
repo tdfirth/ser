@@ -1,4 +1,5 @@
 from pathlib import Path
+import os
 
 from ser.train import train
 
@@ -8,6 +9,7 @@ main = typer.Typer()
 
 PROJECT_ROOT = Path(__file__).parent.parent
 DATA_DIR = PROJECT_ROOT / "data"
+
 
 #or
 #we could have structure
@@ -35,8 +37,11 @@ def model_setup(name: str = typer.Option(
 
     params = {"name":name, "epochs": epochs, "batch_size": batch_size, "learning_rate": learning_rate}
     print("\nData directory: ", DATA_DIR, "\n")
-    
-    train(name, epochs, batch_size, learning_rate, DATA_DIR)
+
+    SAVE_DIR = f'results/{name}'
+    Path(SAVE_DIR).mkdir(parents=True, exist_ok=True)
+   
+    train(params, DATA_DIR, SAVE_DIR)
     save_setup(params)
 
     return params
