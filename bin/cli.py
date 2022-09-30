@@ -1,12 +1,21 @@
 from pathlib import Path
+from typing import Any
 import torch
 from torch import optim
 import torch.nn as nn
 import torch.nn.functional as F
 from torch.utils.data import DataLoader
 from torchvision import datasets, transforms
+from datetime import datetime
+import json
+import git
 
 import typer
+from ser.model import modeldevice
+from ser.transforms import torchtransforms
+from ser.data import dataloader
+from ser.train import modeltrain
+from dataclasses import dataclass, asdict
 
 main = typer.Typer()
 
@@ -19,100 +28,81 @@ def train(
     name: str = typer.Option(
         ..., "-n", "--name", help="Name of experiment to save under."
     ),
+    epochs: int = typer.Option(
+        2, "-e", "--epochs", help="Number of epochs."
+    ),
+    batch_size: int = typer.Option(
+        1000, "-b", "--batch_size", help="Batch size."
+    ),
+    learning_rate: float = typer.Option(
+        0.01, "-l", "--learning_rate", help="Learning rate."
+    )
 ):
     print(f"Running experiment {name}")
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    epochs = 2
-    batch_size = 1000
-    learning_rate = 0.01
+    datetime_start = str(datetime.now())
+
+    # create folders for outputs - Hyperparameters, Models ...
+    path_params = str(PROJECT_ROOT) + "/Outputs/Hyperparameters/"
+    path_model = str(PROJECT_ROOT) + "/Outputs/Models/"
+    path_results = str(PROJECT_ROOT) + "/Outputs/Validation_accuracy/"
+    Path(path_params).mkdir(parents=True, exist_ok=True)
+    Path(path_model).mkdir(parents=True, exist_ok=True)
+    Path(path_results).mkdir(parents=True, exist_ok=True)
+
+    # get the git commit hash
+    repo = git.Repo(search_parent_directories=True)
+    commit_hash = repo.git.rev_parse("HEAD")
+
+    # print warning message when there are uncommitted changes
+    if repo.is_dirty():
+        print("The repository has uncommitted changes.")
 
     # save the parameters!
+    path_params_model = path_params + name + "_" + datetime_start + ".json"
+    #params = {"Name": name, "Epochs number": epochs, 
+    #"Batch size": batch_size, "Learning rate": learning_rate,
+    #"Datetime": datetime_start}
+    params = Parameters(name, epochs, batch_size, learning_rate, datetime_start, commit_hash)
+    params_dict = asdict(params)
+    with open(path_params_model, "w") as fp:
+        json.dump(params_dict,fp) 
 
     # load model
-    model = Net().to(device)
+    model = modeldevice(device)
 
     # setup params
     optimizer = optim.Adam(model.parameters(), lr=learning_rate)
 
     # torch transforms
-    ts = transforms.Compose(
-        [transforms.ToTensor(), transforms.Normalize((0.5,), (0.5,))]
-    )
+    ts = torchtransforms()
 
     # dataloaders
-    training_dataloader = DataLoader(
-        datasets.MNIST(root="../data", download=True, train=True, transform=ts),
-        batch_size=batch_size,
-        shuffle=True,
-        num_workers=1,
-    )
-
-    validation_dataloader = DataLoader(
-        datasets.MNIST(root=DATA_DIR, download=True, train=False, transform=ts),
-        batch_size=batch_size,
-        shuffle=False,
-        num_workers=1,
-    )
+    training_dataloader = dataloader("../data", True, ts, batch_size)
+    validation_dataloader = dataloader(DATA_DIR, False, ts, batch_size)
 
     # train
-    for epoch in range(epochs):
-        for i, (images, labels) in enumerate(training_dataloader):
-            images, labels = images.to(device), labels.to(device)
-            model.train()
-            optimizer.zero_grad()
-            output = model(images)
-            loss = F.nll_loss(output, labels)
-            loss.backward()
-            optimizer.step()
-            print(
-                f"Train Epoch: {epoch} | Batch: {i}/{len(training_dataloader)} "
-                f"| Loss: {loss.item():.4f}"
-            )
-            # validate
-            val_loss = 0
-            correct = 0
-            with torch.no_grad():
-                for images, labels in validation_dataloader:
-                    images, labels = images.to(device), labels.to(device)
-                    model.eval()
-                    output = model(images)
-                    val_loss += F.nll_loss(output, labels, reduction="sum").item()
-                    pred = output.argmax(dim=1, keepdim=True)
-                    correct += pred.eq(labels.view_as(pred)).sum().item()
-                val_loss /= len(validation_dataloader.dataset)
-                val_acc = correct / len(validation_dataloader.dataset)
+    model, results = modeltrain(epochs, device, model, optimizer, training_dataloader, validation_dataloader)
 
-                print(
-                    f"Val Epoch: {epoch} | Avg Loss: {val_loss:.4f} | Accuracy: {val_acc}"
-                )
+    # save the model
+    path_train_model = path_model + name + "_" + datetime_start + ".pth"
+    torch.save(model, path_train_model)
 
-
-class Net(nn.Module):
-    def __init__(self):
-        super(Net, self).__init__()
-        self.conv1 = nn.Conv2d(1, 32, 3, 1)
-        self.conv2 = nn.Conv2d(32, 64, 3, 1)
-        self.dropout1 = nn.Dropout(0.25)
-        self.dropout2 = nn.Dropout(0.5)
-        self.fc1 = nn.Linear(9216, 128)
-        self.fc2 = nn.Linear(128, 10)
-
-    def forward(self, x):
-        x = self.conv1(x)
-        x = F.relu(x)
-        x = self.conv2(x)
-        x = F.relu(x)
-        x = F.max_pool2d(x, 2)
-        x = self.dropout1(x)
-        x = torch.flatten(x, 1)
-        x = self.fc1(x)
-        x = F.relu(x)
-        x = self.dropout2(x)
-        x = self.fc2(x)
-        output = F.log_softmax(x, dim=1)
-        return output
+    # save the highest validation accuracy for all epochs 
+    path_accuracy = path_results + name + "_" + datetime_start + ".json"
+    with open(path_accuracy, "w") as fp:
+        json.dump(results,fp) 
 
 
 @main.command()
 def infer():
     print("This is where the inference code will go")
+
+@dataclass
+class Parameters:
+    name: str
+    epochs: int
+    batch_size: int
+    learning_rate: float
+    datetime: datetime
+    git_commit_hash: Any
