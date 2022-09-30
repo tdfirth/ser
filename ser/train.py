@@ -32,3 +32,4 @@ def modeltrain(epochs, device, model, optimizer, training_dataloader, validation
                 print(
                     f"Val Epoch: {epoch} | Avg Loss: {val_loss:.4f} | Accuracy: {val_acc}"
                 )
+    return model

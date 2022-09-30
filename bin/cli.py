@@ -5,6 +5,8 @@ import torch.nn as nn
 import torch.nn.functional as F
 from torch.utils.data import DataLoader
 from torchvision import datasets, transforms
+from datetime import datetime
+import json
 
 import typer
 from ser.model import modeldevice
@@ -37,6 +39,13 @@ def train(
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     # save the parameters!
+    datetime_start = str(datetime.now())
+    path_params = str(PROJECT_ROOT) + "/Outputs/Hyperparameters/" + name + "_" + datetime_start + ".json"
+    params = {"Name": name, "Epochs number": epochs, 
+    "Batch size": batch_size, "Learning rate": learning_rate,
+    "Datetime": datetime_start}
+    with open(path_params, "w") as fp:
+        json.dump(params,fp) 
 
     # load model
     model = modeldevice(device)
@@ -52,7 +61,12 @@ def train(
     validation_dataloader = dataloader(DATA_DIR, False, ts, batch_size)
 
     # train
-    modeltrain(epochs, device, model, optimizer, training_dataloader, validation_dataloader)
+    model = modeltrain(epochs, device, model, optimizer, training_dataloader, validation_dataloader)
+
+    # save the model
+    path_model = str(PROJECT_ROOT) + "/Outputs/Models/" + name + "_" + datetime_start + ".pth"
+    torch.save(model, path_model)
+
 
 
 
