@@ -7,6 +7,8 @@ def train_model(validation_dataloader, training_dataloader, model, optimizer, ep
                     f.write(f'Experiment file for model: {name} \n Model architecture: {model}')
     best_acc = 0
     best_acc_epoch = 0
+    best_model = None
+    best_batch = 0
     for epoch in range(epochs):
         for i, (images, labels) in enumerate(training_dataloader):
             images, labels = images.to(device), labels.to(device)
@@ -51,5 +53,12 @@ def train_model(validation_dataloader, training_dataloader, model, optimizer, ep
                 if val_acc > best_acc:
                     best_acc = val_acc
                     best_acc_epoch = epoch
+                    best_batch = i
+                    best_model = model
+
+    with open('./experiments/model_'+name+'.txt', 'a') as f:
+                    f.write(f"\n\n Best validation accuracy: {best_acc} occured at epoch: {best_acc_epoch} and batch: {best_batch}") 
+    # save model
+    torch.save(best_model.state_dict(), './experiments/best_model_'+name) 
 
     return model

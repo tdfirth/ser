@@ -1,12 +1,22 @@
 import torch
 from torch import optim
 import json
-
+from dataclasses import dataclass, asdict
 from ser.model import Net
 from ser.data import get_data
 from ser.transforms import get_transforms
 from ser.train import train_model
+import git
 import typer
+
+@dataclass
+class hparams_cls:
+    epochs: int
+    batch_size: int
+    learning_rate: float
+
+    def dict(self):
+        return {k: v for k, v in asdict(self).items()}
 
 main = typer.Typer()
 
@@ -22,33 +32,36 @@ def train(
     print(f"Running experiment {name}")
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-    # save the parameters!
+    # save hyperparameters
+    hparams = hparams_cls(epochs, batch_size, learning_rate)
+    hparams_dict = hparams.dict()
+    with open('./experiments/hyperparams_'+name+'.json', 'w') as f:
+        json.dump(hparams_dict, f)
+
+     # save git hash
+    repo = git.Repo(search_parent_directories=True)
+    sha = repo.head.object.hexsha
+    githash = {'hash':sha}
+    with open('./experiments/hyperparams_'+name+'.json', 'a') as f:
+        json.dump(githash, f)
 
     # load model
     model = Net().to(device)
 
-    # setup params
-    optimizer = optim.Adam(model.parameters(), lr=learning_rate)
+    # setup optimiser
+    optimizer = optim.Adam(model.parameters(), lr=hparams.learning_rate)
 
-    # torch transforms
+    # get torch transforms
     ts = get_transforms()
 
-    # dataloaders
-    training_dataloader, validation_dataloader = get_data(batch_size, ts)
+    # get dataloaders
+    training_dataloader, validation_dataloader = get_data(hparams.batch_size, ts)
 
-    # train
-    model = train_model(validation_dataloader, training_dataloader, model, optimizer, epochs, device, name)
+    # train model
+    model = train_model(validation_dataloader, training_dataloader, model, optimizer, hparams.epochs, device, name)
 
     # save model
     torch.save(model.state_dict(), './experiments/model_'+name)
-
-    # save hyperparameters
-    hparams = {}
-    for hparam in ["epochs", "batch_size", "learning_rate"]:
-        hparams[hparam] = eval(hparam)
-
-    with open('./experiments/hyperparams_'+name+'.json', 'w') as f:
-        json.dump(hparams, f)
 
 @main.command()
 def infer():
