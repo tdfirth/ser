@@ -50,6 +50,7 @@ def _val_batch(model_params, epoch, val_accuracy, val_losses):
         )  
     return
 
+#plotting loss as you go
 def vis_update(batch, epoch, loss, vis, loss_plot):
     vis.line(X=torch.ones((1,1)).cpu()*batch*epoch, Y =torch.ones((1,1)).cpu()*loss.item(), win = loss_plot, update='append')
     return
