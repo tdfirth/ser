@@ -5,6 +5,7 @@ import typer
 import torch
 import git
 import json
+import os
 
 from ser.train import train as run_train
 from ser.constants import RESULTS_DIR
@@ -92,3 +93,12 @@ def infer(
     "\nEpochs: "+str(run_params_dict["epochs"])+
     "\nBatch Size: "+str(run_params_dict["batch_size"])+
     "\nLearning Rate: "+str(run_params_dict["learning_rate"]))
+
+@main.command()
+def summarize_runs():
+    results_path = Path("./results")
+
+    # print out all files in results directory
+    for (root, dirs, file) in os.walk(results_path):
+        for f in dirs:
+            print(f)
