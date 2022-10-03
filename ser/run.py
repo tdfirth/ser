@@ -10,6 +10,6 @@ def run_inference(model, label):
     certainty = max(list(torch.exp(output)[0]))
     pixels = select_image(label)[1][0][0]
     print(generate_ascii_art(pixels))
-    print(f"This is a {pred}")
+    print(f"This is a {pred}. I am {int(certainty*100)}% confident that it is a {pred}.")
 
     return(output, pred, certainty, pixels)

@@ -4,6 +4,7 @@ from pathlib import Path
 import typer
 import torch
 import git
+import json
 
 from ser.train import train as run_train
 from ser.constants import RESULTS_DIR
@@ -83,3 +84,11 @@ def infer(
 
     # run inference
     run_inference(model, label)
+
+    #Print summary of experiment name and hyperparameters
+    run_params = open(Path(run_path,'params.json'))
+    run_params_dict = json.load(run_params)
+    print("Experiment Name: "+run_params_dict["name"]+
+    "\nEpochs: "+str(run_params_dict["epochs"])+
+    "\nBatch Size: "+str(run_params_dict["batch_size"])+
+    "\nLearning Rate: "+str(run_params_dict["learning_rate"]))
