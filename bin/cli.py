@@ -10,6 +10,7 @@ from ser.constants import RESULTS_DIR
 from ser.data import train_dataloader, val_dataloader, test_dataloader
 from ser.params import Params, save_params
 from ser.transforms import transforms, normalize
+from ser.select import select_image
 
 main = typer.Typer()
 
@@ -73,20 +74,21 @@ def infer(
     # TODO load the parameters from the run_path so we can print them out!
 
     # select image to run inference for
-    dataloader = test_dataloader(1, transforms(normalize))
-    images, labels = next(iter(dataloader))
-    while labels[0].item() != label:
-        images, labels = next(iter(dataloader))
+    select_image(label)
+    #dataloader = test_dataloader(1, transforms(normalize))
+    #images, labels = next(iter(dataloader))
+    #while labels[0].item() != label:
+    #    images, labels = next(iter(dataloader))
 
     # load the model
     model = torch.load(run_path / "model.pt")
 
     # run inference
     model.eval()
-    output = model(images)
+    output = model(select_image(label)[1])
     pred = output.argmax(dim=1, keepdim=True)[0].item()
     certainty = max(list(torch.exp(output)[0]))
-    pixels = images[0][0]
+    pixels = select_image(label)[1][0][0]
     print(generate_ascii_art(pixels))
     print(f"This is a {pred}")
 
