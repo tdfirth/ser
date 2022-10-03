@@ -59,8 +59,15 @@ def train(
 
 
 @main.command()
-def infer():
-    run_path = Path("./path/to/one/of/your/training/runs")
+def infer(
+    experiment: str = typer.Option(
+        "experiment1", "-x", "--experiment", help="Name of experiment you wish to perform inference from."
+    ),
+    run: str = typer.Option(
+        "2022-10-03T10-27", "-r", "--run", help="Date and time of run you wish to perform inference from, in format YYYY-MM-DDThh-mm."
+    ),
+):
+    run_path = Path("./results",experiment,run)
     label = 6
 
     # TODO load the parameters from the run_path so we can print them out!
