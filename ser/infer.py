@@ -26,8 +26,8 @@ def inference(dataloader, run_path):
     output = model(images)
     pred = output.argmax(dim=1, keepdim=True)[0].item()
     certainty = max(list(torch.exp(output)[0]))
+    confidence = float(certainty)
     pixels = images[0][0]
     print(generate_ascii_art(pixels))
     print(f"This is a {pred}")
-    #print(pred)
-    #print(certainty)
+    print(f'with confidence {confidence:.3}')
