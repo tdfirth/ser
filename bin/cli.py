@@ -14,6 +14,8 @@ from ser.transforms import transforms, normalize
 from inference.image_select import image_select
 from inference.inference import inference
 
+import json
+
 main = typer.Typer()
 
 
@@ -72,6 +74,8 @@ def infer(
     label = 6
 
     # TODO load the parameters from the run_path so we can print them out!
+    parameters = json.load(open(run_path / "params.json"))
+    print(parameters)
 
     # select image to run inference for- moved to image_select.py
     # dataloader = test_dataloader(1, transforms(normalize))
@@ -91,7 +95,7 @@ def infer(
     # pixels = images[0][0]
     pred, certainty, pixels = inference(model,images)
     print(generate_ascii_art(pixels))
-    print(f"This is a {pred}")
+    print(f"This is a {pred}, with certainty {certainty}.")
     
 
 
