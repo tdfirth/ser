@@ -1,0 +1,1 @@
+{"name": "experiment4", "epochs": 1, "batch_size": 1000, "learning_rate": 0.01, "datetime": "2022-09-30 15:33:42.492514", "git_commit_hash": "4bd547b2f28154fe19427109eef14dd80a50599d"}
