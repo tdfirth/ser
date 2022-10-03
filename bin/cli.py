@@ -11,6 +11,11 @@ from ser.data import train_dataloader, val_dataloader, test_dataloader
 from ser.params import Params, save_params
 from ser.transforms import transforms, normalize
 
+from inference.image_select import image_select
+from inference.inference import inference
+
+import json
+
 main = typer.Typer()
 
 
@@ -59,29 +64,39 @@ def train(
 
 
 @main.command()
-def infer():
-    run_path = Path("./path/to/one/of/your/training/runs")
+def infer(
+    run_path: Path = typer.Option(
+        ..., "-p", "--path", help="File path to inference model."
+    )
+):
+    # this command is now specified by a typer argument
+    # run_path = Path("./path/to/one/of/your/training/runs")
     label = 6
 
     # TODO load the parameters from the run_path so we can print them out!
+    parameters = json.load(open(run_path / "params.json"))
+    print(parameters)
 
-    # select image to run inference for
-    dataloader = test_dataloader(1, transforms(normalize))
-    images, labels = next(iter(dataloader))
-    while labels[0].item() != label:
-        images, labels = next(iter(dataloader))
+    # select image to run inference for- moved to image_select.py
+    # dataloader = test_dataloader(1, transforms(normalize))
+    # images, labels = next(iter(dataloader))
+    # while labels[0].item() != label:
+    #     images, labels = next(iter(dataloader))
+    images, labels = image_select(label)
 
     # load the model
     model = torch.load(run_path / "model.pt")
 
-    # run inference
-    model.eval()
-    output = model(images)
-    pred = output.argmax(dim=1, keepdim=True)[0].item()
-    certainty = max(list(torch.exp(output)[0]))
-    pixels = images[0][0]
+    # run inference- moved to inference.py
+    # model.eval()
+    # output = model(images)
+    # pred = output.argmax(dim=1, keepdim=True)[0].item()
+    # certainty = max(list(torch.exp(output)[0]))
+    # pixels = images[0][0]
+    pred, certainty, pixels = inference(model,images)
     print(generate_ascii_art(pixels))
-    print(f"This is a {pred}")
+    print(f"This is a {pred}, with certainty {certainty}.")
+    
 
 
 def generate_ascii_art(pixels):
