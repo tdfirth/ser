@@ -1,0 +1,1 @@
+{"experiment_name": "git", "datetime": "20220930-154151", "epochs": 2, "batch_size": 1000, "learning_rate": 0.01, "git_hash": "4dd5d130ae113037f6130532b680364b1ded0233"}
