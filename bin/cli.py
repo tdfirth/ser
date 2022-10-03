@@ -11,6 +11,8 @@ from ser.data import train_dataloader, val_dataloader, test_dataloader
 from ser.params import Params, save_params
 from ser.transforms import transforms, normalize
 from ser.select import select_image
+from ser.run import run_inference
+from ser.artwork import generate_ascii_art, pixel_to_char
 
 main = typer.Typer()
 
@@ -75,40 +77,9 @@ def infer(
 
     # select image to run inference for
     select_image(label)
-    #dataloader = test_dataloader(1, transforms(normalize))
-    #images, labels = next(iter(dataloader))
-    #while labels[0].item() != label:
-    #    images, labels = next(iter(dataloader))
 
     # load the model
     model = torch.load(run_path / "model.pt")
 
     # run inference
-    model.eval()
-    output = model(select_image(label)[1])
-    pred = output.argmax(dim=1, keepdim=True)[0].item()
-    certainty = max(list(torch.exp(output)[0]))
-    pixels = select_image(label)[1][0][0]
-    print(generate_ascii_art(pixels))
-    print(f"This is a {pred}")
-
-
-def generate_ascii_art(pixels):
-    ascii_art = []
-    for row in pixels:
-        line = []
-        for pixel in row:
-            line.append(pixel_to_char(pixel))
-        ascii_art.append("".join(line))
-    return "\n".join(ascii_art)
-
-
-def pixel_to_char(pixel):
-    if pixel > 0.99:
-        return "O"
-    elif pixel > 0.9:
-        return "o"
-    elif pixel > 0:
-        return "."
-    else:
-        return " "
+    run_inference(model, label)
