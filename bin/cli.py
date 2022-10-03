@@ -16,6 +16,8 @@ from inference.inference import inference
 
 import json
 
+import os
+
 main = typer.Typer()
 
 
@@ -96,8 +98,31 @@ def infer(
     pred, certainty, pixels = inference(model,images)
     print(generate_ascii_art(pixels))
     print(f"This is a {pred}, with certainty {certainty}.")
-    
 
+@main.command()
+def experiment_table(
+    results_dir: Path = typer.Option(
+        ..., "-p", "--path", help="File path of results directory.")
+):
+    experiments, runs = get_experiment_paths(results_dir)
+    jsons = extract_jsons(results_dir,experiments,runs)
+
+    for file in jsons:
+        print(file)
+
+# finds file paths for all experiments
+def get_experiment_paths(results_dir):
+    experiments = os.listdir(results_dir)
+    runs = [os.listdir(results_dir / experiment) for experiment in experiments]
+    return(experiments, runs)
+
+def extract_jsons(results_dir,experiments,runs):
+    jsons = []
+    for experiment_n in range(len(experiments)):
+        for run in runs[experiment_n]:
+            file = json.load(open(results_dir / experiments[experiment_n] / run / "params.json"))
+            jsons.append(file)
+    return(jsons)
 
 def generate_ascii_art(pixels):
     ascii_art = []
